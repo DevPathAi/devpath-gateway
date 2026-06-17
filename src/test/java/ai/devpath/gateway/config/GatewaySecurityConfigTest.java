@@ -33,7 +33,7 @@ class GatewaySecurityConfigTest {
 	void publicAuthRefreshIsNot401() {
 		// 다운스트림 미가동 시 라우팅 실패(5xx/404)일 수 있으나 보안 401은 아니어야 한다.
 		web.post().uri("/auth/refresh").exchange()
-			.expectStatus().value(s -> org.junit.jupiter.api.Assertions.assertTrue(s != 401));
+			.expectStatus().value(s -> org.junit.jupiter.api.Assertions.assertNotEquals(401, s));
 	}
 
 	// P1-6: CORS preflight — 허용 origin에서 OPTIONS 요청 시 allow-credentials: true 반환
