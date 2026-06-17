@@ -5,7 +5,11 @@ spring:
     gateway:
       server:
         webflux:
-          routes: []
+          routes:
+            - id: platform-auth
+              uri: ${PLATFORM_URI:http://localhost:8081}
+              predicates:
+                - Path=/oauth2/**,/login/**,/auth/**,/users/**
           # 도메인 서비스 라우팅은 서비스 가동 시점에 추가한다. 예:
           # - id: learning
           #   uri: http://devpath-learning-svc:8080
