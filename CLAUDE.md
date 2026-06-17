@@ -36,7 +36,7 @@
 | 영역 | 내용 |
 |------|------|
 | 라우팅 | Spring Cloud Gateway (WebFlux) 엣지 라우팅 |
-| 인증 | OAuth2(GitHub) 로그인 + JWT 발급/검증 |
+| 인증 | JWT 검증(엣지, HS256) + CORS — 발급·OAuth2 로그인은 devpath-platform-svc |
 | 대상 | 도메인 서비스(devpath-*-svc) 프록시 |
 ## 공통 규칙
 
