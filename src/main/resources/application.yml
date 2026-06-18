@@ -10,11 +10,10 @@ spring:
               uri: ${PLATFORM_URI:http://localhost:8081}
               predicates:
                 - Path=/oauth2/**,/login/**,/auth/**,/users/**
-          # 도메인 서비스 라우팅은 서비스 가동 시점에 추가한다. 예:
-          # - id: learning
-          #   uri: http://devpath-learning-svc:8080
-          #   predicates:
-          #     - Path=/api/learning/**
+            - id: learning
+              uri: ${LEARNING_URI:http://localhost:8082}
+              predicates:
+                - Path=/onboarding/assessments/**
 
 server:
   port: 8080
