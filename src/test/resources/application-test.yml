@@ -1,6 +1,4 @@
 spring:
-  application:
-    name: devpath-gateway
   cloud:
     gateway:
       server:
@@ -15,11 +13,11 @@ spring:
               predicates:
                 - Path=/onboarding/assessments/**,/learning-paths/**
 
-server:
-  port: 8080
+JWT_SECRET: "test-secret-please-change-min-32-bytes-long-0123456789"
+CORS_ALLOWED_ORIGINS: "http://localhost:5173"
 
 management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, gateway
+        include: health
