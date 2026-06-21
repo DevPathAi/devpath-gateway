@@ -13,7 +13,7 @@ spring:
             - id: learning
               uri: ${LEARNING_URI:http://localhost:8082}
               predicates:
-                - Path=/onboarding/assessments/**,/learning-paths/**
+                - Path=/onboarding/assessments/**,/learning-paths/**,/dashboard/**,/contents/**
 
 server:
   port: 8080

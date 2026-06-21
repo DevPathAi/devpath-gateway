@@ -17,4 +17,10 @@ class RouteConfigTest {
 		StepVerifier.create(routes.getRoutes().map(r -> r.getId()).filter(id -> id.equals("platform-auth")))
 			.expectNext("platform-auth").verifyComplete();
 	}
+
+	@Test
+	void learningRouteIsConfigured() {
+		StepVerifier.create(routes.getRoutes().map(r -> r.getId()).filter(id -> id.equals("learning")))
+			.expectNext("learning").verifyComplete();
+	}
 }

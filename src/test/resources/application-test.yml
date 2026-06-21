@@ -11,7 +11,7 @@ spring:
             - id: learning
               uri: ${LEARNING_URI:http://localhost:8082}
               predicates:
-                - Path=/onboarding/assessments/**,/learning-paths/**
+                - Path=/onboarding/assessments/**,/learning-paths/**,/dashboard/**,/contents/**
 
 JWT_SECRET: "test-secret-please-change-min-32-bytes-long-0123456789"
 CORS_ALLOWED_ORIGINS: "http://localhost:5173"
