@@ -23,4 +23,10 @@ class RouteConfigTest {
 		StepVerifier.create(routes.getRoutes().map(r -> r.getId()).filter(id -> id.equals("learning")))
 			.expectNext("learning").verifyComplete();
 	}
+
+	@Test
+	void sandboxRouteIsConfigured() {
+		StepVerifier.create(routes.getRoutes().map(r -> r.getId()).filter(id -> id.equals("sandbox")))
+			.expectNext("sandbox").verifyComplete();
+	}
 }
