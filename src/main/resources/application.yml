@@ -18,6 +18,10 @@ spring:
               uri: ${SANDBOX_URI:http://localhost:8085}
               predicates:
                 - Path=/sandbox/**
+            - id: ai-review
+              uri: ${AI_SVC_URI:http://localhost:8084}
+              predicates:
+                - Path=/reviews/**
 
 server:
   port: 8080
