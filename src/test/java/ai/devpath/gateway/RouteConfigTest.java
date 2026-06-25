@@ -1,10 +1,16 @@
 package ai.devpath.gateway;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.route.RouteLocator;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.test.StepVerifier;
 
 @SpringBootTest
@@ -34,5 +40,17 @@ class RouteConfigTest {
 	void aiReviewRouteIsConfigured() {
 		StepVerifier.create(routes.getRoutes().map(r -> r.getId()).filter(id -> id.equals("ai-review")))
 			.expectNext("ai-review").verifyComplete();
+	}
+
+	@Test
+	void aiMentorPathMatchesAiReviewRoute() {
+		ServerWebExchange exchange =
+			MockServerWebExchange.from(MockServerHttpRequest.post("/ai-mentor/sessions").build());
+		Route aiReview = routes.getRoutes()
+			.filter(r -> r.getId().equals("ai-review"))
+			.blockFirst();
+		assertThat(aiReview).isNotNull();
+		StepVerifier.create(aiReview.getPredicate().apply(exchange))
+			.expectNext(true).verifyComplete();
 	}
 }
