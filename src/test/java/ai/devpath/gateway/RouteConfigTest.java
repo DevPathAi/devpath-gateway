@@ -49,6 +49,24 @@ class RouteConfigTest {
 	}
 
 	@Test
+	void lcsRouteIsConfigured() {
+		StepVerifier.create(routes.getRoutes().map(r -> r.getId()).filter(id -> id.equals("lcs")))
+			.expectNext("lcs").verifyComplete();
+	}
+
+	@Test
+	void lcsPathMatchesRoute() {
+		ServerWebExchange exchange =
+			MockServerWebExchange.from(MockServerHttpRequest.post("/lcs/snapshots/draft").build());
+		Route lcs = routes.getRoutes()
+			.filter(r -> r.getId().equals("lcs"))
+			.blockFirst();
+		assertThat(lcs).isNotNull();
+		StepVerifier.create(lcs.getPredicate().apply(exchange))
+			.expectNext(true).verifyComplete();
+	}
+
+	@Test
 	void aiMentorPathMatchesAiReviewRoute() {
 		ServerWebExchange exchange =
 			MockServerWebExchange.from(MockServerHttpRequest.post("/ai-mentor/sessions").build());
