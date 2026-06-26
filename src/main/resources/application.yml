@@ -22,6 +22,10 @@ spring:
               uri: ${AI_SVC_URI:http://localhost:8084}
               predicates:
                 - Path=/reviews/**,/ai-mentor/**
+            - id: community
+              uri: ${COMMUNITY_SVC_URI:http://localhost:8086}
+              predicates:
+                - Path=/community/**
 
 server:
   port: 8080
