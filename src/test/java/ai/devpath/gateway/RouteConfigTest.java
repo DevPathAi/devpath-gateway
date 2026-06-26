@@ -43,6 +43,12 @@ class RouteConfigTest {
 	}
 
 	@Test
+	void communityRouteIsConfigured() {
+		StepVerifier.create(routes.getRoutes().map(r -> r.getId()).filter(id -> id.equals("community")))
+			.expectNext("community").verifyComplete();
+	}
+
+	@Test
 	void aiMentorPathMatchesAiReviewRoute() {
 		ServerWebExchange exchange =
 			MockServerWebExchange.from(MockServerHttpRequest.post("/ai-mentor/sessions").build());
