@@ -26,6 +26,10 @@ spring:
               uri: ${COMMUNITY_SVC_URI:http://localhost:8086}
               predicates:
                 - Path=/community/**
+            - id: lcs
+              uri: ${LCS_SVC_URI:http://localhost:8087}
+              predicates:
+                - Path=/lcs/**
 
 server:
   port: 8080
