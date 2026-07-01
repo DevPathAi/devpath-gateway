@@ -77,4 +77,22 @@ class RouteConfigTest {
 		StepVerifier.create(aiReview.getPredicate().apply(exchange))
 			.expectNext(true).verifyComplete();
 	}
+
+	@Test
+	void notificationRouteIsConfigured() {
+		StepVerifier.create(routes.getRoutes().map(r -> r.getId()).filter(id -> id.equals("notification")))
+			.expectNext("notification").verifyComplete();
+	}
+
+	@Test
+	void notificationDevicesPathMatchesRoute() {
+		ServerWebExchange exchange =
+			MockServerWebExchange.from(MockServerHttpRequest.post("/notifications/devices").build());
+		Route notification = routes.getRoutes()
+			.filter(r -> r.getId().equals("notification"))
+			.blockFirst();
+		assertThat(notification).isNotNull();
+		StepVerifier.create(notification.getPredicate().apply(exchange))
+			.expectNext(true).verifyComplete();
+	}
 }
