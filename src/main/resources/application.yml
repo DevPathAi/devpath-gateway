@@ -26,6 +26,10 @@ spring:
               uri: ${COMMUNITY_SVC_URI:http://localhost:8086}
               predicates:
                 - Path=/community/**
+            - id: notification
+              uri: ${NOTIFICATION_URI:http://localhost:8088}
+              predicates:
+                - Path=/notifications/**
             - id: lcs
               uri: ${LCS_SVC_URI:http://localhost:8087}
               predicates:
