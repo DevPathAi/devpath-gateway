@@ -9,7 +9,7 @@ spring:
             - id: platform-auth
               uri: ${PLATFORM_URI:http://localhost:8081}
               predicates:
-                - Path=/oauth2/**,/login/**,/auth/**,/users/**
+                - Path=/oauth2/**,/login/**,/auth/**,/users/**,/admin/**,/consents/**,/beta/**,/ads/**
             - id: learning
               uri: ${LEARNING_URI:http://localhost:8082}
               predicates:
@@ -26,6 +26,10 @@ spring:
               uri: ${COMMUNITY_SVC_URI:http://localhost:8086}
               predicates:
                 - Path=/community/**
+            - id: notification
+              uri: ${NOTIFICATION_URI:http://localhost:8088}
+              predicates:
+                - Path=/notifications/**
             - id: lcs
               uri: ${LCS_SVC_URI:http://localhost:8087}
               predicates:

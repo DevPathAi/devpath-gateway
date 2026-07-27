@@ -77,4 +77,58 @@ class RouteConfigTest {
 		StepVerifier.create(aiReview.getPredicate().apply(exchange))
 			.expectNext(true).verifyComplete();
 	}
+
+	@Test
+	void notificationRouteIsConfigured() {
+		StepVerifier.create(routes.getRoutes().map(r -> r.getId()).filter(id -> id.equals("notification")))
+			.expectNext("notification").verifyComplete();
+	}
+
+	@Test
+	void notificationDevicesPathMatchesRoute() {
+		ServerWebExchange exchange =
+			MockServerWebExchange.from(MockServerHttpRequest.post("/notifications/devices").build());
+		Route notification = routes.getRoutes()
+			.filter(r -> r.getId().equals("notification"))
+			.blockFirst();
+		assertThat(notification).isNotNull();
+		StepVerifier.create(notification.getPredicate().apply(exchange))
+			.expectNext(true).verifyComplete();
+	}
+
+	@Test
+	void adminPathMatchesPlatformAuthRoute() {
+		ServerWebExchange exchange =
+			MockServerWebExchange.from(MockServerHttpRequest.get("/admin/users").build());
+		Route platform = routes.getRoutes()
+			.filter(r -> r.getId().equals("platform-auth"))
+			.blockFirst();
+		assertThat(platform).isNotNull();
+		StepVerifier.create(platform.getPredicate().apply(exchange))
+			.expectNext(true).verifyComplete();
+	}
+
+	@Test
+	void consentsPathMatchesPlatformAuthRoute() {
+		ServerWebExchange exchange =
+			MockServerWebExchange.from(MockServerHttpRequest.post("/consents").build());
+		Route platform = routes.getRoutes()
+			.filter(r -> r.getId().equals("platform-auth"))
+			.blockFirst();
+		assertThat(platform).isNotNull();
+		StepVerifier.create(platform.getPredicate().apply(exchange))
+			.expectNext(true).verifyComplete();
+	}
+
+	@Test
+	void betaStatusPathMatchesPlatformAuthRoute() {
+		ServerWebExchange exchange =
+			MockServerWebExchange.from(MockServerHttpRequest.get("/beta/status").build());
+		Route platform = routes.getRoutes()
+			.filter(r -> r.getId().equals("platform-auth"))
+			.blockFirst();
+		assertThat(platform).isNotNull();
+		StepVerifier.create(platform.getPredicate().apply(exchange))
+			.expectNext(true).verifyComplete();
+	}
 }
