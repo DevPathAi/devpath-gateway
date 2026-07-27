@@ -39,7 +39,7 @@ public class GatewaySecurityConfig {
 			.cors(Customizer.withDefaults()) // P1-6/R6
 			.authorizeExchange(ex -> ex
 				.pathMatchers("/oauth2/**", "/login/**", "/auth/refresh", "/auth/logout",
-						"/onboarding/assessments/guest/**", "/actuator/health").permitAll()
+						"/onboarding/assessments/guest/**", "/actuator/health", "/actuator/health/**").permitAll()
 				.anyExchange().authenticated())
 			.oauth2ResourceServer(rs -> rs.jwt(Customizer.withDefaults()));
 		return http.build();
