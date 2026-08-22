@@ -8,6 +8,9 @@ group = "ai.devpath"
 version = "0.0.1-SNAPSHOT"
 description = "DevPath AI API Gateway (OAuth2 + JWT edge)"
 
+val devpathSharedVersion = providers.gradleProperty("devpathSharedVersion").get()
+val devpathSharedCoordinate = "ai.devpath:devpath-shared:$devpathSharedVersion"
+
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
@@ -15,6 +18,9 @@ java {
 }
 
 repositories {
+	providers.gradleProperty("immutableSharedRepository").orNull?.let { repository ->
+		maven { url = uri(repository) }
+	}
 	mavenCentral()
 	maven {
 		url = uri("https://maven.pkg.github.com/DevPathAi/devpath-shared")
@@ -31,7 +37,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 	implementation("org.springframework.cloud:spring-cloud-starter-gateway-server-webflux")
-	implementation("ai.devpath:devpath-shared:0.0.1-SNAPSHOT")
+	implementation(devpathSharedCoordinate)
 	compileOnly("org.projectlombok:lombok")
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
