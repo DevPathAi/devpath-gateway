@@ -39,6 +39,7 @@ public class GatewaySecurityConfig {
 			.cors(Customizer.withDefaults()) // P1-6/R6
 			.authorizeExchange(ex -> ex
 				.pathMatchers("/oauth2/**", "/login/**", "/auth/refresh", "/auth/logout",
+						"/v1/release/browser/**",
 						"/onboarding/assessments/guest/**", "/actuator/health", "/actuator/health/**").permitAll()
 				.anyExchange().authenticated())
 			.oauth2ResourceServer(rs -> rs.jwt(Customizer.withDefaults()));
@@ -54,7 +55,11 @@ public class GatewaySecurityConfig {
 		cfg.setAllowCredentials(true);
 		cfg.setAllowedOrigins(java.util.Arrays.asList(origins.split(",")));
 		cfg.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-		cfg.setAllowedHeaders(java.util.List.of("Authorization", "Content-Type"));
+		cfg.setAllowedHeaders(java.util.List.of(
+				"Authorization",
+				"Content-Type",
+				"X-Candidate-Spec-Sha256",
+				"X-Release-Run-Key"));
 		var source = new org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", cfg);
 		return source;
