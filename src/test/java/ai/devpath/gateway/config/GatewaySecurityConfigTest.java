@@ -36,6 +36,15 @@ class GatewaySecurityConfigTest {
 			.expectStatus().value(s -> org.junit.jupiter.api.Assertions.assertNotEquals(401, s));
 	}
 
+	@Test
+	void runBoundReleaseBrowserEndpointIsNotRejectedAsJwtProtected() {
+		web.get().uri("/v1/release/browser/analytics-permission")
+			.header("X-Candidate-Spec-Sha256", "a".repeat(64))
+			.header("X-Release-Run-Key", "A".repeat(22))
+			.exchange()
+			.expectStatus().value(s -> org.junit.jupiter.api.Assertions.assertNotEquals(401, s));
+	}
+
 	// P1-6: CORS preflight — 허용 origin에서 OPTIONS 요청 시 allow-credentials: true 반환
 	@Test
 	void corsPreflightAllowedOriginReturnsAllowCredentials() {
@@ -46,6 +55,24 @@ class GatewaySecurityConfigTest {
 			.exchange()
 			.expectHeader().valueEquals("Access-Control-Allow-Credentials", "true")
 			.expectHeader().valueEquals("Access-Control-Allow-Origin", "http://localhost:5173");
+	}
+
+	@Test
+	void corsPreflightAllowsReleaseBindingHeaders() {
+		web.options().uri("/v1/release/browser/analytics-events")
+			.header("Origin", "http://localhost:5173")
+			.header("Access-Control-Request-Method", "POST")
+			.header(
+				"Access-Control-Request-Headers",
+				"Content-Type,X-Candidate-Spec-Sha256,X-Release-Run-Key")
+			.exchange()
+			.expectStatus().isOk()
+			.expectHeader().value("Access-Control-Allow-Headers", value -> {
+				org.junit.jupiter.api.Assertions.assertTrue(
+					value.toLowerCase().contains("x-candidate-spec-sha256"));
+				org.junit.jupiter.api.Assertions.assertTrue(
+					value.toLowerCase().contains("x-release-run-key"));
+			});
 	}
 
 	// P1-6: CORS preflight — 비허용 origin은 allow-credentials 헤더 없음
