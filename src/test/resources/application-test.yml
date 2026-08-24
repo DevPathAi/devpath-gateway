@@ -4,6 +4,20 @@ spring:
       server:
         webflux:
           routes:
+            - id: platform-release-oauth
+              uri: ${PLATFORM_URI:http://localhost:8081}
+              predicates:
+                - Path=/oauth2/authorization/github
+                - Header=X-Candidate-Spec-Sha256, [0-9a-f]+
+                - Header=X-Release-Run-Key, [A-Za-z0-9_-]+
+              filters:
+                - SetPath=/oauth2/authorization/release
+            - id: platform-release-browser
+              uri: ${PLATFORM_URI:http://localhost:8081}
+              predicates:
+                - Path=/v1/release/browser/**
+                - Header=X-Candidate-Spec-Sha256, [0-9a-f]+
+                - Header=X-Release-Run-Key, [A-Za-z0-9_-]+
             - id: platform-auth
               uri: ${PLATFORM_URI:http://localhost:8081}
               predicates:

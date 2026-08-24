@@ -19,6 +19,43 @@ class RouteConfigTest {
 	@Autowired RouteLocator routes;
 
 	@Test
+	void releaseOAuthRouteRequiresPinnedRunHeadersAndRewritesGithubRegistration() {
+		ServerWebExchange releaseExchange = MockServerWebExchange.from(
+			MockServerHttpRequest.get("/oauth2/authorization/github")
+				.header("X-Candidate-Spec-Sha256", "a".repeat(64))
+				.header("X-Release-Run-Key", "A".repeat(22))
+				.build());
+		Route release = routes.getRoutes()
+			.filter(r -> r.getId().equals("platform-release-oauth"))
+			.blockFirst();
+		assertThat(release).isNotNull();
+		StepVerifier.create(release.getPredicate().apply(releaseExchange))
+			.expectNext(true).verifyComplete();
+
+		ServerWebExchange ordinaryExchange = MockServerWebExchange.from(
+			MockServerHttpRequest.get("/oauth2/authorization/github").build());
+		StepVerifier.create(release.getPredicate().apply(ordinaryExchange))
+			.expectNext(false).verifyComplete();
+		assertThat(release.getFilters()).extracting(Object::toString)
+			.anyMatch(value -> value.contains("/oauth2/authorization/release"));
+	}
+
+	@Test
+	void releaseBrowserRouteRequiresPinnedRunHeaders() {
+		ServerWebExchange releaseExchange = MockServerWebExchange.from(
+			MockServerHttpRequest.post("/v1/release/browser/analytics-events")
+				.header("X-Candidate-Spec-Sha256", "b".repeat(64))
+				.header("X-Release-Run-Key", "B".repeat(22))
+				.build());
+		Route release = routes.getRoutes()
+			.filter(r -> r.getId().equals("platform-release-browser"))
+			.blockFirst();
+		assertThat(release).isNotNull();
+		StepVerifier.create(release.getPredicate().apply(releaseExchange))
+			.expectNext(true).verifyComplete();
+	}
+
+	@Test
 	void platformAuthRouteIsConfigured() {
 		StepVerifier.create(routes.getRoutes().map(r -> r.getId()).filter(id -> id.equals("platform-auth")))
 			.expectNext("platform-auth").verifyComplete();
