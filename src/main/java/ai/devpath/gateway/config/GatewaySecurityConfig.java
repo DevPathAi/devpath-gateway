@@ -59,7 +59,8 @@ public class GatewaySecurityConfig {
 				"Authorization",
 				"Content-Type",
 				"X-Candidate-Spec-Sha256",
-				"X-Release-Run-Key"));
+				"X-Release-Run-Key",
+				"X-Sandbox-Event-Version"));
 		var source = new org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", cfg);
 		return source;
