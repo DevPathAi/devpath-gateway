@@ -75,6 +75,21 @@ class GatewaySecurityConfigTest {
 			});
 	}
 
+	@Test
+	void corsPreflightAllowsSandboxEventVersionHeader() {
+		web.options().uri("/sandbox/run")
+			.header("Origin", "http://localhost:5173")
+			.header("Access-Control-Request-Method", "POST")
+			.header(
+				"Access-Control-Request-Headers",
+				"Content-Type,X-Candidate-Spec-Sha256,X-Release-Run-Key,X-Sandbox-Event-Version")
+			.exchange()
+			.expectStatus().isOk()
+			.expectHeader().value("Access-Control-Allow-Headers", value ->
+				org.junit.jupiter.api.Assertions.assertTrue(
+					value.toLowerCase().contains("x-sandbox-event-version")));
+	}
+
 	// P1-6: CORS preflight — 비허용 origin은 allow-credentials 헤더 없음
 	@Test
 	void corsPreflightDisallowedOriginNoAllowCredentials() {
