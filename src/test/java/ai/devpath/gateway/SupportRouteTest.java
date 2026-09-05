@@ -42,6 +42,12 @@ class SupportRouteTest {
   }
 
   @Test
+  void publicSupportRequestMatchesRouteWithoutJwt() {
+    web.post().uri("/support/public-requests").exchange()
+        .expectStatus().value(SupportRouteTest::assertGatewayMatchedRoute);
+  }
+
+  @Test
   void authenticatedSupportRequestMatchesRoute() {
     web.post().uri("/support/requests")
         .header(HttpHeaders.AUTHORIZATION, "Bearer test-token")

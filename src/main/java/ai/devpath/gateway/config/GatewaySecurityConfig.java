@@ -6,6 +6,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -41,6 +42,7 @@ public class GatewaySecurityConfig {
 				.pathMatchers("/oauth2/**", "/login/**", "/auth/refresh", "/auth/logout",
 						"/v1/release/browser/**",
 						"/onboarding/assessments/guest/**", "/actuator/health", "/actuator/health/**").permitAll()
+				.pathMatchers(HttpMethod.POST, "/support/public-requests").permitAll()
 				.anyExchange().authenticated())
 			.oauth2ResourceServer(rs -> rs.jwt(Customizer.withDefaults()));
 		return http.build();
