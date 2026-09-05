@@ -23,7 +23,7 @@ spring:
             - id: platform-auth
               uri: ${PLATFORM_URI:http://localhost:8081}
               predicates:
-                - Path=/oauth2/**,/login/**,/auth/**,/users/**,/admin/**,/consents/**,/beta/**,/ads/**,/support/**
+                - Path=/oauth2/**,/login/**,/auth/**,/users/**,/admin/**,/consents/**,/beta/**,/ads/**,/support/**,/mentor-access/**
             - id: learning
               uri: ${LEARNING_URI:http://localhost:8082}
               predicates:

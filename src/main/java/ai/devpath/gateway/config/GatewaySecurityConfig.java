@@ -43,6 +43,7 @@ public class GatewaySecurityConfig {
 						"/v1/release/browser/**",
 						"/onboarding/assessments/guest/**", "/actuator/health", "/actuator/health/**").permitAll()
 				.pathMatchers(HttpMethod.POST, "/support/public-requests").permitAll()
+				.pathMatchers(HttpMethod.GET, "/mentor-access/invite-rounds").permitAll()
 				.anyExchange().authenticated())
 			.oauth2ResourceServer(rs -> rs.jwt(Customizer.withDefaults()));
 		return http.build();
