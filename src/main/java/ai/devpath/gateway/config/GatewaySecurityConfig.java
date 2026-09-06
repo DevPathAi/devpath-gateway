@@ -53,19 +53,36 @@ public class GatewaySecurityConfig {
 	// 반드시 명시 allowlist(env)로 주입. 브라우저가 Set-Cookie 처리.
 	@Bean
 	public org.springframework.web.cors.reactive.CorsConfigurationSource corsConfigurationSource(
-			@Value("${CORS_ALLOWED_ORIGINS:http://localhost:5173}") String origins) {
-		var cfg = new org.springframework.web.cors.CorsConfiguration();
-		cfg.setAllowCredentials(true);
-		cfg.setAllowedOrigins(java.util.Arrays.asList(origins.split(",")));
-		cfg.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-		cfg.setAllowedHeaders(java.util.List.of(
+			@Value("${CORS_ALLOWED_ORIGINS:http://localhost:5173}") String origins,
+			@Value("${PUBLIC_CORS_ALLOWED_ORIGINS:https://leva.ai.kr}") String publicOrigins) {
+		var trusted = new org.springframework.web.cors.CorsConfiguration();
+		trusted.setAllowCredentials(true);
+		trusted.setAllowedOrigins(parseOrigins(origins));
+		trusted.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+		trusted.setAllowedHeaders(java.util.List.of(
 				"Authorization",
 				"Content-Type",
 				"X-Candidate-Spec-Sha256",
 				"X-Release-Run-Key",
 				"X-Sandbox-Event-Version"));
+
+		var publicApi = new org.springframework.web.cors.CorsConfiguration();
+		publicApi.setAllowCredentials(false);
+		publicApi.setAllowedOrigins(parseOrigins(publicOrigins));
+		publicApi.setAllowedMethods(java.util.List.of("GET", "POST", "OPTIONS"));
+		publicApi.setAllowedHeaders(java.util.List.of("Content-Type"));
+
 		var source = new org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", cfg);
+		source.registerCorsConfiguration("/support/public-requests", publicApi);
+		source.registerCorsConfiguration("/mentor-access/invite-rounds", publicApi);
+		source.registerCorsConfiguration("/**", trusted);
 		return source;
+	}
+
+	private static java.util.List<String> parseOrigins(String origins) {
+		return java.util.Arrays.stream(origins.split(","))
+			.map(String::trim)
+			.filter(origin -> !origin.isEmpty())
+			.toList();
 	}
 }
