@@ -7,12 +7,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 
 @Configuration
@@ -44,6 +46,10 @@ public class GatewaySecurityConfig {
 						"/onboarding/assessments/guest/**", "/actuator/health", "/actuator/health/**").permitAll()
 				.pathMatchers(HttpMethod.POST, "/support/public-requests").permitAll()
 				.pathMatchers(HttpMethod.GET, "/mentor-access/invite-rounds").permitAll()
+				.pathMatchers("/ai-mentor/**").access((authentication, context) -> authentication
+					.map(current -> new AuthorizationDecision(
+						current instanceof JwtAuthenticationToken jwt
+							&& "ACTIVE".equals(jwt.getToken().getClaimAsString("mentor_access")))))
 				.anyExchange().authenticated())
 			.oauth2ResourceServer(rs -> rs.jwt(Customizer.withDefaults()));
 		return http.build();
