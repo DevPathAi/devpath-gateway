@@ -2,11 +2,14 @@ package ai.devpath.gateway;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.route.RouteLocator;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.test.context.ActiveProfiles;
@@ -59,6 +62,16 @@ class RouteConfigTest {
 	void platformAuthRouteIsConfigured() {
 		StepVerifier.create(routes.getRoutes().map(r -> r.getId()).filter(id -> id.equals("platform-auth")))
 			.expectNext("platform-auth").verifyComplete();
+	}
+
+	@Test
+	void productionAndTestPlatformAuthPathsStayInSync() throws IOException {
+		String productionPaths = platformAuthPaths("application.yml");
+		String testPaths = platformAuthPaths("application-test.yml");
+
+		assertThat(productionPaths)
+			.isEqualTo(testPaths)
+			.contains("/support/**", "/mentor-access/**");
 	}
 
 	@Test
@@ -155,6 +168,25 @@ class RouteConfigTest {
 		assertThat(platform).isNotNull();
 		StepVerifier.create(platform.getPredicate().apply(exchange))
 			.expectNext(true).verifyComplete();
+	}
+
+	private static String platformAuthPaths(String resourceName) throws IOException {
+		boolean platformAuth = false;
+		for (String line : new ClassPathResource(resourceName)
+				.getContentAsString(StandardCharsets.UTF_8).lines().toList()) {
+			String trimmed = line.trim();
+			if (trimmed.equals("- id: platform-auth")) {
+				platformAuth = true;
+				continue;
+			}
+			if (platformAuth && trimmed.startsWith("- id:")) {
+				break;
+			}
+			if (platformAuth && trimmed.startsWith("- Path=")) {
+				return trimmed.substring("- Path=".length());
+			}
+		}
+		throw new IllegalStateException("platform-auth Path missing from " + resourceName);
 	}
 
 	@Test

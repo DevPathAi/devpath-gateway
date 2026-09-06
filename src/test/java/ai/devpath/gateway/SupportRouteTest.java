@@ -48,6 +48,12 @@ class SupportRouteTest {
   }
 
   @Test
+  void publicSupportRequestWithNonPostMethodRequiresJwt() {
+    web.get().uri("/support/public-requests").exchange()
+        .expectStatus().isUnauthorized();
+  }
+
+  @Test
   void authenticatedSupportRequestMatchesRoute() {
     web.post().uri("/support/requests")
         .header(HttpHeaders.AUTHORIZATION, "Bearer test-token")

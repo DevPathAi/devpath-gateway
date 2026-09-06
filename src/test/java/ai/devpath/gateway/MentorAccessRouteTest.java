@@ -38,11 +38,24 @@ class MentorAccessRouteTest {
   }
 
   @Test
+  void inviteRoundsWithNonGetMethodRemainAuthenticated() {
+    web.post().uri("/mentor-access/invite-rounds").exchange()
+        .expectStatus().isUnauthorized();
+  }
+
+  @Test
   void personalStatusAndRedeemRemainAuthenticated() {
     web.get().uri("/mentor-access/me").exchange().expectStatus().isUnauthorized();
     web.post().uri("/mentor-access/redeem").exchange().expectStatus().isUnauthorized();
 
     web.get().uri("/mentor-access/me")
+        .header(HttpHeaders.AUTHORIZATION, "Bearer test-token")
+        .exchange().expectStatus().value(MentorAccessRouteTest::assertMatched);
+  }
+
+  @Test
+  void authenticatedRedeemMatchesPlatformRoute() {
+    web.post().uri("/mentor-access/redeem")
         .header(HttpHeaders.AUTHORIZATION, "Bearer test-token")
         .exchange().expectStatus().value(MentorAccessRouteTest::assertMatched);
   }
