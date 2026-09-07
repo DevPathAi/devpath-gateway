@@ -18,15 +18,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
-/** /support/** 가 platform-auth 라우트에 매칭되는지. CommunityRouteTest 와 같은 형태다. */
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-class SupportRouteTest {
-
+class MentorAccessRouteTest {
   @LocalServerPort int port;
-
   @MockitoBean ReactiveJwtDecoder jwtDecoder;
-
   WebTestClient web;
 
   @BeforeEach
@@ -36,32 +32,35 @@ class SupportRouteTest {
   }
 
   @Test
-  void supportRequestsRequireJwt() {
-    web.post().uri("/support/requests").exchange()
+  void aggregateInviteRoundsArePublicAndMatchPlatformRoute() {
+    web.get().uri("/mentor-access/invite-rounds").exchange()
+        .expectStatus().value(MentorAccessRouteTest::assertMatched);
+  }
+
+  @Test
+  void inviteRoundsWithNonGetMethodRemainAuthenticated() {
+    web.post().uri("/mentor-access/invite-rounds").exchange()
         .expectStatus().isUnauthorized();
   }
 
   @Test
-  void publicSupportRequestMatchesRouteWithoutJwt() {
-    web.post().uri("/support/public-requests").exchange()
-        .expectStatus().value(SupportRouteTest::assertGatewayMatchedRoute);
-  }
+  void personalStatusAndRedeemRemainAuthenticated() {
+    web.get().uri("/mentor-access/me").exchange().expectStatus().isUnauthorized();
+    web.post().uri("/mentor-access/redeem").exchange().expectStatus().isUnauthorized();
 
-  @Test
-  void publicSupportRequestWithNonPostMethodRequiresJwt() {
-    web.get().uri("/support/public-requests").exchange()
-        .expectStatus().isUnauthorized();
-  }
-
-  @Test
-  void authenticatedSupportRequestMatchesRoute() {
-    web.post().uri("/support/requests")
+    web.get().uri("/mentor-access/me")
         .header(HttpHeaders.AUTHORIZATION, "Bearer test-token")
-        .exchange()
-        .expectStatus().value(SupportRouteTest::assertGatewayMatchedRoute);
+        .exchange().expectStatus().value(MentorAccessRouteTest::assertMatched);
   }
 
-  private static void assertGatewayMatchedRoute(int status) {
+  @Test
+  void authenticatedRedeemMatchesPlatformRoute() {
+    web.post().uri("/mentor-access/redeem")
+        .header(HttpHeaders.AUTHORIZATION, "Bearer test-token")
+        .exchange().expectStatus().value(MentorAccessRouteTest::assertMatched);
+  }
+
+  private static void assertMatched(int status) {
     assertThat(status)
         .isNotEqualTo(HttpStatus.UNAUTHORIZED.value())
         .isNotEqualTo(HttpStatus.FORBIDDEN.value())
@@ -75,7 +74,6 @@ class SupportRouteTest {
         .subject("42")
         .issuedAt(now)
         .expiresAt(now.plusSeconds(600))
-        .claim("scope", "ROLE_LEARNER")
         .build();
   }
 }
