@@ -99,4 +99,23 @@ class GatewaySecurityConfigTest {
 			.exchange()
 			.expectHeader().doesNotExist("Access-Control-Allow-Credentials");
 	}
+
+	@Test
+	void publicHomepageCanCallOnlyPublicSupportWithoutCredentials() {
+		web.options().uri("/support/public-requests")
+			.header("Origin", "https://leva.ai.kr")
+			.header("Access-Control-Request-Method", "POST")
+			.header("Access-Control-Request-Headers", "Content-Type")
+			.exchange()
+			.expectStatus().isOk()
+			.expectHeader().valueEquals("Access-Control-Allow-Origin", "https://leva.ai.kr")
+			.expectHeader().doesNotExist("Access-Control-Allow-Credentials");
+
+		web.options().uri("/users/me")
+			.header("Origin", "https://leva.ai.kr")
+			.header("Access-Control-Request-Method", "GET")
+			.exchange()
+			.expectHeader().doesNotExist("Access-Control-Allow-Origin")
+			.expectHeader().doesNotExist("Access-Control-Allow-Credentials");
+	}
 }

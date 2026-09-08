@@ -6,7 +6,7 @@
 
 - Spring Cloud Gateway (WebFlux) 기반 엣지 라우팅
 - OAuth2 (GitHub) 로그인 + JWT 발급/검증
-- 도메인 서비스(`devpath-*-svc`) 라우팅
+- 도메인 서비스(`devpath-*-svc`) 라우팅. Platform의 `/support/**`·`/mentor-access/**`와 AI의 `/ai-mentor/**` 포함
 - OTel 샘플링 (10~30%)
 
 아키텍처 배경: [documents/03_프로젝트_아키텍처_정의서](https://github.com/DevPathAi/documents/blob/main/03_프로젝트_아키텍처_정의서.md)

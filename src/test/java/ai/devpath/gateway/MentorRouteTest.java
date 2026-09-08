@@ -31,7 +31,12 @@ class MentorRouteTest {
   @BeforeEach
   void setUp() {
     web = WebTestClient.bindToServer().baseUrl("http://localhost:" + port).build();
-    when(jwtDecoder.decode("test-token")).thenReturn(Mono.just(jwt()));
+    when(jwtDecoder.decode("active-token")).thenReturn(Mono.just(jwt("active-token", "ACTIVE")));
+    when(jwtDecoder.decode("waitlisted-token"))
+        .thenReturn(Mono.just(jwt("waitlisted-token", "WAITLISTED")));
+    when(jwtDecoder.decode("missing-token")).thenReturn(Mono.just(jwt("missing-token", null)));
+    when(jwtDecoder.decode("unknown-token"))
+        .thenReturn(Mono.just(jwt("unknown-token", "PAUSED")));
   }
 
   @Test
@@ -41,11 +46,33 @@ class MentorRouteTest {
   }
 
   @Test
-  void authenticatedMentorSessionMatchesRoute() {
+  void activeMentorSessionMatchesRoute() {
     web.post().uri("/ai-mentor/sessions")
-        .header(HttpHeaders.AUTHORIZATION, "Bearer test-token")
+        .header(HttpHeaders.AUTHORIZATION, "Bearer active-token")
         .exchange()
         .expectStatus().value(MentorRouteTest::assertGatewayMatchedRoute);
+  }
+
+  @Test
+  void waitlistedMentorSessionIsForbidden() {
+    assertForbidden("waitlisted-token");
+  }
+
+  @Test
+  void missingMentorAccessClaimIsForbidden() {
+    assertForbidden("missing-token");
+  }
+
+  @Test
+  void unknownMentorAccessClaimIsForbidden() {
+    assertForbidden("unknown-token");
+  }
+
+  private void assertForbidden(String token) {
+    web.post().uri("/ai-mentor/sessions")
+        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+        .exchange()
+        .expectStatus().isForbidden();
   }
 
   private static void assertGatewayMatchedRoute(int status) {
@@ -55,14 +82,17 @@ class MentorRouteTest {
         .isNotEqualTo(HttpStatus.NOT_FOUND.value());
   }
 
-  private static Jwt jwt() {
+  private static Jwt jwt(String token, String mentorAccess) {
     Instant now = Instant.now();
-    return Jwt.withTokenValue("test-token")
+    Jwt.Builder jwt = Jwt.withTokenValue(token)
         .header("alg", "HS256")
         .subject("42")
         .issuedAt(now)
         .expiresAt(now.plusSeconds(600))
-        .claim("scope", "ROLE_LEARNER")
-        .build();
+        .claim("scope", "ROLE_LEARNER");
+    if (mentorAccess != null) {
+      jwt.claim("mentor_access", mentorAccess);
+    }
+    return jwt.build();
   }
 }
