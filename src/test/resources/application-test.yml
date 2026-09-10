@@ -50,6 +50,7 @@ spring:
 JWT_SECRET: "test-secret-please-change-min-32-bytes-long-0123456789"
 CORS_ALLOWED_ORIGINS: "http://localhost:5173"
 PUBLIC_CORS_ALLOWED_ORIGINS: "https://leva.ai.kr"
+RELEASE_CORS_ALLOWED_ORIGINS: "https://leva.ai.kr,http://localhost:5173"
 
 management:
   endpoints:

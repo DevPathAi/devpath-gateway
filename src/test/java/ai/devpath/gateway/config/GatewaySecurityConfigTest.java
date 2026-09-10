@@ -76,6 +76,26 @@ class GatewaySecurityConfigTest {
 	}
 
 	@Test
+	void publicHomepageCanCallReleaseBrowserControlWithoutCredentials() {
+		web.options().uri("/v1/release/browser/analytics-permission")
+			.header("Origin", "https://leva.ai.kr")
+			.header("Access-Control-Request-Method", "GET")
+			.header(
+				"Access-Control-Request-Headers",
+				"X-Candidate-Spec-Sha256,X-Release-Run-Key")
+			.exchange()
+			.expectStatus().isOk()
+			.expectHeader().valueEquals("Access-Control-Allow-Origin", "https://leva.ai.kr")
+			.expectHeader().doesNotExist("Access-Control-Allow-Credentials")
+			.expectHeader().value("Access-Control-Allow-Headers", value -> {
+				org.junit.jupiter.api.Assertions.assertTrue(
+					value.toLowerCase().contains("x-candidate-spec-sha256"));
+				org.junit.jupiter.api.Assertions.assertTrue(
+					value.toLowerCase().contains("x-release-run-key"));
+			});
+	}
+
+	@Test
 	void corsPreflightAllowsSandboxEventVersionHeader() {
 		web.options().uri("/sandbox/run")
 			.header("Origin", "http://localhost:5173")
