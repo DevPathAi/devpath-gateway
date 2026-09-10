@@ -60,7 +60,8 @@ public class GatewaySecurityConfig {
 	@Bean
 	public org.springframework.web.cors.reactive.CorsConfigurationSource corsConfigurationSource(
 			@Value("${CORS_ALLOWED_ORIGINS:http://localhost:5173}") String origins,
-			@Value("${PUBLIC_CORS_ALLOWED_ORIGINS:https://leva.ai.kr}") String publicOrigins) {
+			@Value("${PUBLIC_CORS_ALLOWED_ORIGINS:https://leva.ai.kr}") String publicOrigins,
+			@Value("${RELEASE_CORS_ALLOWED_ORIGINS:https://leva.ai.kr,https://app.leva.ai.kr}") String releaseOrigins) {
 		var trusted = new org.springframework.web.cors.CorsConfiguration();
 		trusted.setAllowCredentials(true);
 		trusted.setAllowedOrigins(parseOrigins(origins));
@@ -78,9 +79,19 @@ public class GatewaySecurityConfig {
 		publicApi.setAllowedMethods(java.util.List.of("GET", "POST", "OPTIONS"));
 		publicApi.setAllowedHeaders(java.util.List.of("Content-Type"));
 
+		var releaseBrowser = new org.springframework.web.cors.CorsConfiguration();
+		releaseBrowser.setAllowCredentials(false);
+		releaseBrowser.setAllowedOrigins(parseOrigins(releaseOrigins));
+		releaseBrowser.setAllowedMethods(java.util.List.of("GET", "POST", "OPTIONS"));
+		releaseBrowser.setAllowedHeaders(java.util.List.of(
+				"Content-Type",
+				"X-Candidate-Spec-Sha256",
+				"X-Release-Run-Key"));
+
 		var source = new org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/support/public-requests", publicApi);
 		source.registerCorsConfiguration("/mentor-access/invite-rounds", publicApi);
+		source.registerCorsConfiguration("/v1/release/browser/**", releaseBrowser);
 		source.registerCorsConfiguration("/**", trusted);
 		return source;
 	}
