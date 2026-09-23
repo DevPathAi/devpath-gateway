@@ -5,6 +5,11 @@ spring:
     gateway:
       server:
         webflux:
+          # 하위 서비스(platform-svc 공개 경로)도 CORS 를 붙이므로 게이트웨이 CorsWebFilter 와 겹치면
+          # Access-Control-Allow-Origin 이 두 번 실려 브라우저가 차단한다(2026-09-17 운영 실측,
+          # leva.ai.kr/updates). 엣지에서 같은 값을 하나로 줄인다.
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials Vary, RETAIN_UNIQUE
           routes:
             - id: platform-release-oauth
               uri: ${PLATFORM_URI:http://localhost:8081}
