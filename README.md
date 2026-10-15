@@ -1,6 +1,6 @@
 # devpath-gateway
 
-**DevPath AI** API Gateway — 모든 클라이언트 트래픽의 단일 진입점입니다.
+**레바(Leva)** API Gateway — 모든 클라이언트 트래픽의 단일 진입점입니다.
 
 ## 역할
 
